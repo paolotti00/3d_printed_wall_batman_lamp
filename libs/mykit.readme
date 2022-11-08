@@ -1,0 +1,109 @@
+So Easy MicroPython — NeoPixel (WS2812B) LED Strip
+Yungger
+Yungger
+
+Apr 28·4 min read
+
+
+
+
+NeoPixels, also known as WS2812 full-color LED (values of red, green, and blue setting between 0~255).
+＊＊＊ Just adding a few lines to your existing script, then your MCU (ESP8266 or ESP32) can easily control a single LED or light strip lamp, to its brightness, color or colors, or even a light show will become extremely easy. ＊＊＊
+Step 1: Upload library to your MCU
+First, download the library by its link and upload it to your MCU !
+MyKitNeoPixel : A basic library for controlling WS2812B LED
+＊＊＊ If no idea how to upload files to your MCU board, you can read my other article “So Easy — ESP8266/ESP32 File Management” first. ＊＊＊
+Step 2: Lets’ learn some examples
+The following examples, basically need to include the following statements onto the top of your script:
+import utime as time
+from MyKitNeoPixel import myNeoPixel
+LED_PIN = 14     # ESP8266: D5
+LED_PIXELS = 12  # 12 LEDs
+LED_BRI = 10     # Brightness set to 10%, to avoid dazzling
+np = myNeoPixel(LED_PIN, pixels=LED_PIXELS, brightness=LED_BRI)
+
+Example 1：Light: On / Off
+for _ in range(3):
+    np.lightON()
+    time.sleep(0.5)
+    np.lightOFF()
+    time.sleep(0.5)
+Example 2：Light: Toggle
+np.lightON()
+for _ in range(5):
+    time.sleep_ms(500)
+    np.lightToggle()
+Example 3：Colors
+np.light(255, 0, 0)      # RED： using (R,G,B) to color
+time.sleep(2) 
+np.light(color="green")  # Green：using name to color
+Example 4：Colors: Random
+for _ in range(5):
+    r, g, b = np.randomRGB()
+    np.light(r, g, b)
+    time.sleep(1)
+Example 5：Colors: Code
+for c in range(17):
+    np.lightColor(c)
+    time.sleep(0.5)
+Example 6：Colors: Name
+colors = ["black", "red", "orange", "yellow", "green", "blue", "indigo", "purple", "cyan", "magenta", "silver", "gray", "maroon", "olive", "teal", "navy", "white", "random", "off"]
+for c in colors:
+    np.lightColor(c)
+    time.sleep(0.5)
+Example 7：Brightness
+for b in range(5, 50):
+    np.setBrightness(b)  # 0 ~ 100
+    np.light()      
+    time.sleep_ms(100)
+Example 8：Pixel:
+np.light(r, g, b, 4)  # only LED pixel #4 light ON, color is r, g, b
+np.lightOFF(4)        # only LED pixel #4 light OFF
+Example 9：Pixel: One-by-One ON
+for i in range(LED_PIXELS):
+    np.lightON(pixel=i)
+    time.sleep_ms(500)
+Example 10：: One ON, others OFF
+for i in range(LED_PIXELS):
+    np.lightOFF()
+    np.lightON(pixel=i)
+    time.sleep_ms(500)
+Add a little imagination, you can control the brightness, color or colors of a single LED or even the entire light strip as you like!
+And that is what the next light show examples come out !!
+Step 3: Some Light SHOWs
+Although, by the end of the explanation here, you should be able to write a light show yourself, but it is much faster and easier if you choose to download and use the light show library I have written !
+MyKitNeoPixelShow : a light show library for NeoPixel LED
+The following examples, basically need to include the following statements onto the top of your script:
+import utime as time
+from MyKitNeoPixelShow import myNeoPixelShow
+LED_PIN = 14     # ESP8266: D5
+LED_PIXELS = 12  # 12 LEDs
+LED_BRI = 10     # Brightness set to 10%, to avoid dazzling
+np = myNeoPixelShow(LED_PIN, pixels=LED_PIXELS, brightness=LED_BRI)
+Example 11：Flash show
+np.show('blink', 500, 6)
+Example 12：Fading In/Out show
+np.show('up', 1000)
+np.show('down', 1000)
+Example 13：Marquee show
+np.show('forward', 1000, 2)
+np.show('backward', 1000, 2)
+Example 14：Crazy lantern show
+np.show('crazy', 1000, 3)
+Example 15：Rainbow show
+np.show('rainbow', 10000)
+Example 16：Random color show
+np.show('random', 1000, 5)
+Example 17：Space Jump show
+np.show('jump', 2000, 3)
+Example 18：Dancing show
+np.show('dance', 500, 10)
+Example 19：360 Streamer show
+np.show('360', 5000)
+Example 20：360 Wheel show
+np.show('360wheel', 30, 100)
+＊＊＊ On above, parameter 1: name, 2:ms per time, 3:times ＊＊＊
+
+The example commands listed above are so simple that they can make various changes to the LED light bar, easy as the show of 360 kinds of streamer colors. Of course, the light show can be more than that, add a little of imagination make some arbitrary combinations, it will produce more amazing effects !
+Example 21：Personal special show
+＾＿＾ Show by yourself ！！
