@@ -56,7 +56,7 @@ def start_server():
     except:
         app.shutdown()
 
-
+# api methods 
 @app.route('/meminfo')
 async def hello(request):
     return micropython.mem_info()
@@ -64,13 +64,26 @@ async def hello(request):
 
 @app.route('/setred')
 async def hello(request):
-    np.fill((128, 0, 0))
-    np.write()
+    set_led_color_red()
 
 
 @app.route('/setgreen')
 async def hello(request):
-    np.fill((0, 255, 0))
+    set_led_color_green()
+
+@app.get('/setcolor/r/<int:red>/g/<int:green>/b/<int:blue>')
+async def hello(request,red,green,blue):
+    set_led_color((red, green, blue))
+
+# methods
+def set_led_color_red():
+    set_led_color((128, 0, 0))
+
+def set_led_color_green():
+    set_led_color((0, 255, 0))
+
+def set_led_color(rgb_color): # it accepted rgb_color like (0,255,0)
+    np.fill(rgb_color)
     np.write()
 
 # main
