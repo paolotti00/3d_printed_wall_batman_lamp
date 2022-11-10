@@ -1,4 +1,5 @@
 from libs.microdot.microdot import Microdot
+from libs.effects import write_fade_in
 import micropython
 import network
 import machine
@@ -33,15 +34,13 @@ def do_connect():
     sta_if = network.WLAN(network.STA_IF)
     if not sta_if.isconnected():
         print('connecting to network...')
-        np.fill(LED_COLOR_NETWORK_NOT_CONNECTED)
-        np.write()
+        set_led_color(LED_COLOR_NETWORK_NOT_CONNECTED)
         sta_if.active(True)
         sta_if.connect(NETWORK_SSID, NETWORK_PASS)
         while not sta_if.isconnected():
             pass
         # network is connected
-        np.fill(LED_COLOR_DEFAULT)
-        np.write()
+        set_led_color(LED_COLOR_DEFAULT)
     print('network config:', sta_if.ifconfig())
 
 
@@ -57,23 +56,27 @@ def start_server():
         app.shutdown()
 
 # api methods 
-@app.route('/meminfo')
+@app.get('/meminfo')
 async def hello(request):
     return micropython.mem_info()
 
 
-@app.route('/setred')
+@app.get('/leds/setred')
 async def hello(request):
     set_led_color_red()
 
 
-@app.route('/setgreen')
+@app.get('/leds/setgreen')
 async def hello(request):
     set_led_color_green()
 
-@app.get('/setcolor/r/<int:red>/g/<int:green>/b/<int:blue>')
+@app.get('/leds/setcolor/r/<int:red>/g/<int:green>/b/<int:blue>')
 async def hello(request,red,green,blue):
     set_led_color((red, green, blue))
+
+@app.get('/leds/switchoff')
+async def hello(request):
+    set_led_color((0, 0, 0))
 
 # methods
 def set_led_color_red():
@@ -84,7 +87,7 @@ def set_led_color_green():
 
 def set_led_color(rgb_color): # it accepted rgb_color like (0,255,0)
     np.fill(rgb_color)
-    np.write()
+    write_fade_in(np)
 
 # main
 do_connect()

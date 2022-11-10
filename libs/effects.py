@@ -98,7 +98,7 @@ def write_fade_in(np):
             #for x,new_tuple in enumerate(new_np):
                 #print("new tuple " + str(new_tuple))
         #print("---------write--------")
-        time.sleep_ms(30)
+        time.sleep_ms(1)
         new_np.write()
 
 
