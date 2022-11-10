@@ -1,4 +1,4 @@
-from libs.microdot.microdot_asyncio import Microdot
+from libs.microdot.microdot import Microdot
 import micropython
 import network
 import machine
