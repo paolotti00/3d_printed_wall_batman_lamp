@@ -1,5 +1,8 @@
 from libs.microdot.microdot import Microdot
 from libs.effects import write_fade_in
+from libs.effects import cycle
+from libs.effects import bounce
+from libs.effects import rainbow_cycle
 import micropython
 import network
 import machine
@@ -21,8 +24,8 @@ N_LEDS_WING_SX_END = 15
 N_LEDS_WING_DX_START = 16
 N_LEDS_WING_DX_END = 30
 PIN = 5  # d1
-LED_COLOR_DEFAULT = (0, 255, 0)  # green
-LED_COLOR_NETWORK_NOT_CONNECTED = (230, 230, 0)  # yellow
+LED_COLOR_DEFAULT = (0, 2, 0)  # green
+LED_COLOR_NETWORK_NOT_CONNECTED = (2, 2, 0)  # yellow
 # config
 N = 40
 # set np
@@ -77,6 +80,22 @@ async def hello(request,red,green,blue):
 @app.get('/leds/switchoff')
 async def hello(request):
     set_led_color((0, 0, 0))
+
+@app.get('/leds/circle')
+async def hello(request):
+    current_color=np[0]
+    cycle(np,np[0][0],np[0][1],np[0][2],4)
+    set_led_color(current_color)
+
+@app.get('/leds/bounce')
+async def hello(request):
+    current_color=np[0]
+    bounce(np,np[0][0],np[0][1],np[0][2],4)
+    set_led_color(current_color)
+
+@app.get('/leds/rmbwcircle')
+async def hello(request):
+    rainbow_cycle(np,5)
 
 # methods
 def set_led_color_red():
