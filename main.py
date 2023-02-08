@@ -37,13 +37,13 @@ def do_connect():
     sta_if = network.WLAN(network.STA_IF)
     if not sta_if.isconnected():
         print('connecting to network...')
-        set_led_color(LED_COLOR_NETWORK_NOT_CONNECTED)
+        set_led_color_fade(LED_COLOR_NETWORK_NOT_CONNECTED)
         sta_if.active(True)
         sta_if.connect(NETWORK_SSID, NETWORK_PASS)
         while not sta_if.isconnected():
             pass
         # network is connected
-        set_led_color(LED_COLOR_DEFAULT)
+        set_led_color_fade(LED_COLOR_DEFAULT)
     print('network config:', sta_if.ifconfig())
 
 
@@ -75,11 +75,11 @@ async def hello(request):
 
 @app.get('/leds/setcolor/r/<int:red>/g/<int:green>/b/<int:blue>')
 async def hello(request,red,green,blue):
-    set_led_color((red, green, blue))
+    set_led_color_fade((red, green, blue))
 
 @app.get('/leds/switchoff')
 async def hello(request):
-    set_led_color((0, 0, 0))
+    set_led_color_fade((0, 0, 0))
 
 @app.get('/leds/circle')
 async def hello(request):
@@ -99,14 +99,18 @@ async def hello(request):
 
 # methods
 def set_led_color_red():
-    set_led_color((128, 0, 0))
+    set_led_color_fade((128, 0, 0))
 
 def set_led_color_green():
-    set_led_color((0, 255, 0))
+    set_led_color_fade((0, 255, 0))
+
+def set_led_color_fade(rgb_color): # it accepted rgb_color like (0,255,0)
+    np.fill(rgb_color)
+    write_fade_in(np)
 
 def set_led_color(rgb_color): # it accepted rgb_color like (0,255,0)
     np.fill(rgb_color)
-    write_fade_in(np)
+    np.write()
 
 # main
 do_connect()
