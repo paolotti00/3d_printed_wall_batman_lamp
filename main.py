@@ -3,10 +3,12 @@ from libs.effects import write_fade_in
 from libs.effects import cycle
 from libs.effects import bounce
 from libs.effects import rainbow_cycle
+from libs.effects import clear
 import micropython
 import network
 import machine
 import neopixel
+import time
 
 # import os
 # print(os.uname())
@@ -24,7 +26,7 @@ N_LEDS_WING_SX_END = 15
 N_LEDS_WING_DX_START = 16
 N_LEDS_WING_DX_END = 30
 PIN = 5  # d1
-LED_COLOR_DEFAULT = (0, 2, 0)  # green
+LED_COLOR_DEFAULT = (0, 200, 0)  # green
 LED_COLOR_NETWORK_NOT_CONNECTED = (2, 2, 0)  # yellow
 # config
 N = 40
@@ -97,6 +99,14 @@ async def hello(request):
 async def hello(request):
     rainbow_cycle(np,5)
 
+@app.get('/leds/setcolor/o/r1/<int:red1>/g1/<int:green1>/b1/<int:blue1>/r2/<int:red2>/g2/<int:green2>/b2/<int:blue2>')
+async def hello(request,red1,green1,blue1,red2,green2,blue2):
+    set_led_color_half_o((red1, green1, blue1),(red2, green2, blue2))
+
+@app.get('/leds/setcolor/two/r1/<int:red1>/g1/<int:green1>/b1/<int:blue1>/r2/<int:red2>/g2/<int:green2>/b2/<int:blue2>')
+async def hello(request,red1,green1,blue1,red2,green2,blue2):
+    set_led_color_two((red1, green1, blue1),(red2, green2, blue2))
+
 # methods
 def set_led_color_red():
     set_led_color_fade((128, 0, 0))
@@ -112,6 +122,25 @@ def set_led_color(rgb_color): # it accepted rgb_color like (0,255,0)
     np.fill(rgb_color)
     np.write()
 
+def set_led_color_half_o(rgb_color_a,rgb_color_b):
+    for pixel_id in range(0,N/2):
+        np[pixel_id]=rgb_color_a
+        time.sleep_ms(2)
+        np.write()
+    for pixel_id in range(N/2,N):
+        np[pixel_id]=rgb_color_b
+        time.sleep_ms(2)
+        np.write()
+
+def set_led_color_two(rgb_color_a,rgb_color_b):
+    clear(np)
+    current_color = rgb_color_b
+    for i in range(0,N,5):
+        current_color = rgb_color_a if current_color == rgb_color_b else rgb_color_b
+        for y in range(i-5,i):
+            np[y]=current_color
+            time.sleep_ms(2)
+            np.write()
 # main
 do_connect()
 start_server()
