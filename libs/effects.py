@@ -1,5 +1,4 @@
 import math
-import machine
 import neopixel
 import time
 import math
@@ -101,4 +100,46 @@ def write_fade_in(np):
         time.sleep_ms(1)
         new_np.write()
 
+# methods
+def set_led_color_red(np):
+    set_led_color_fade(np,(128, 0, 0))
 
+def set_led_color_green(np):
+    set_led_color_fade(np,(0, 255, 0))
+
+def set_led_color_fade(np,rgb_color): # it accepted rgb_color like (0,255,0)
+    np.fill(rgb_color)
+    write_fade_in(np)
+
+def set_led_color(np,rgb_color): # it accepted rgb_color like (0,255,0)
+    np.fill(rgb_color)
+    np.write()
+
+def set_led_color_half_o(np,num_led,rgb_color_a,rgb_color_b):
+    for pixel_id in range(0,num_led/2):
+        np[pixel_id]=rgb_color_a
+        time.sleep_ms(2)
+        np.write()
+    for pixel_id in range(num_led/2,num_led):
+        np[pixel_id]=rgb_color_b
+        time.sleep_ms(2)
+        np.write()
+
+def set_led_color_two(np,num_led,rgb_color_a,rgb_color_b):
+    clear(np)
+    current_color = rgb_color_b
+    for i in range(0,num_led,5):
+        current_color = rgb_color_a if current_color == rgb_color_b else rgb_color_b
+        for y in range(i-5,i):
+            np[y]=current_color
+            time.sleep_ms(2)
+            np.write()
+
+def twinkle(np,num_led,rgb_color,wait):
+    for i in range(num_led):
+        np[i] = (rgb_color)
+        np.write()
+        time.sleep_ms(wait)
+        np[i] = (0, 0, 0)
+        np.write()
+        time.sleep_ms(wait)
