@@ -1,6 +1,5 @@
 #TODO ricordati di cancellare microdot dalla root
 from libs.microdot.microdot import Microdot
-import uasyncio as asyncio
 import libs.effects as effects
 import micropython
 import network
@@ -105,9 +104,9 @@ async def hello8(request):
         effects.rainbow_cycle(np,5)
         thread_wait=False
 
-# @app.get('/leds/setcolor/o/r1/<int:red1>/g1/<int:green1>/b1/<int:blue1>/r2/<int:red2>/g2/<int:green2>/b2/<int:blue2>')
-# async def hello9(request,red1,green1,blue1,red2,green2,blue2):
-#     effects.set_led_color_half_o(np,NUM_LED,(red1, green1, blue1),(red2, green2, blue2))
+@app.get('/leds/setcolor/o/r1/<int:red1>/g1/<int:green1>/b1/<int:blue1>/r2/<int:red2>/g2/<int:green2>/b2/<int:blue2>')
+async def hello9(request,red1,green1,blue1,red2,green2,blue2):
+    effects.set_led_color_half_o(np,NUM_LED,(red1, green1, blue1),(red2, green2, blue2))
 
 @app.get('/leds/setcolor/two/r1/<int:red1>/g1/<int:green1>/b1/<int:blue1>/r2/<int:red2>/g2/<int:green2>/b2/<int:blue2>')
 async def hello10(request,red1,green1,blue1,red2,green2,blue2):
@@ -116,11 +115,6 @@ async def hello10(request,red1,green1,blue1,red2,green2,blue2):
 @app.get('/leds/twinkle/r/<int:red>/g/<int:green>/b/<int:blue>/w/<int:wait>')
 async def hello12(request,red,green,blue,wait):
     print("hello12")
-    loop = asyncio.get_event_loop()
-    loop.create_task(twinkle((red, green, blue),wait))
-    loop.run_forever()
-
-def twinkle(rgbColor,wait):
     global thread_run, thread_wait
     thread_run = False
     while thread_wait:
@@ -130,11 +124,9 @@ def twinkle(rgbColor,wait):
     while thread_run:
         print("hello12_thread_run")
         thread_wait=True
-        effects.twinkle(np,NUM_LED,rgbColor,wait)
+        effects.twinkle(np,NUM_LED,(red, green, blue),wait)
         thread_wait=False
 
 # main
 do_connect()
 start_server()
-
-
