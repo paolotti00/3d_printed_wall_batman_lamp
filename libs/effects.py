@@ -3,6 +3,7 @@ import neopixel
 import time
 import math
 from libs.bpm_reader import BMPReader
+import uasyncio as asyncio
 
 # close all pixels
 def clear(np):
@@ -49,14 +50,14 @@ def wheel(pos):
     return (pos * 3, 0, 255 - pos * 3)
 
 
-def rainbow_cycle(np, wait):
+async def rainbow_cycle(np, wait):
     n=np.n
     for j in range(255):
         for i in range(n):
             rc_index = (i * 256 // n) + j
             np[i] = wheel(rc_index & 255)
         np.write()
-        time.sleep_ms(wait)
+        await asyncio.sleep(wait)
 
 
 def print_img(np,img_url):
