@@ -136,11 +136,11 @@ def set_led_color_two(np,num_led,rgb_color_a,rgb_color_b):
             time.sleep_ms(2)
             np.write()
 
-def twinkle(np,num_led,rgb_color,wait):
+async def twinkle(np,num_led,rgb_color,wait):
     for i in range(num_led):
         np[i] = (rgb_color)
         np.write()
-        time.sleep_ms(wait)
+        await asyncio.sleep(wait)
         np[i] = (0, 0, 0)
         np.write()
-        time.sleep_ms(wait)
+        await asyncio.sleep(wait)

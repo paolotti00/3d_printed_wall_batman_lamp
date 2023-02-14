@@ -94,6 +94,21 @@ async def effect_handler(request):
         else:
             wait = 0.01
         current_effect_task = asyncio.get_event_loop().create_task(looppa(effects.rainbow_cycle,np,wait))
+    if new_effect_name == 'twinkle':
+        if 'effect_data' in request:
+             if 'wait' in request['effect_data']:
+                wait = request['effect_data']['wait']
+             else:
+                wait = 0.01
+             if 'color' in request['effect_data']:
+                r = int(request['effect_data']['color'].split(",")[0])
+                g = int(request['effect_data']['color'].split(",")[1])
+                b = int(request['effect_data']['color'].split(",")[2])
+             else:
+                raise Exception("error no color in request")
+        else:
+                raise Exception("error no effect_data in request")            
+        current_effect_task = asyncio.get_event_loop().create_task(looppa(effects.twinkle,np,NUM_LED,(r,g,b),wait))    
 
 
 async def looppa(l, *args):
