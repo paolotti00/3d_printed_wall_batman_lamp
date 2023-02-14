@@ -64,8 +64,10 @@ async def mem_info(request, response: tinyweb.response):
     print(micropython.mem_info())
     await response.start_html()
     # Send actual HTML page
-    current_effect_task = asyncio.get_event_loop().create_task(looppa(effects.rainbow_cycle,np,1))
+    current_effect_task = asyncio.get_event_loop().create_task(
+        looppa(effects.rainbow_cycle, np, 1))
     await response.send('<html><body><h1>Hello, world! free: {} allocated: {} </h1></html>\n'.format(gc.mem_free(), gc.mem_alloc()))
+
 
 @app.route('/ping')
 async def mem_info(request, response: tinyweb.response):
@@ -77,7 +79,7 @@ async def effect(request):
     print(request)
     asyncio.run(effect_handler(request))
     print('dopo asyncio.run(effect_handler(request))')
-    return {'ok':'ok'},200
+    return {'ok': 'ok'}, 200
 
 
 async def effect_handler(request):
@@ -85,38 +87,70 @@ async def effect_handler(request):
     new_effect_name = request['name']
     print(new_effect_name)
     # check if other effect task is running and stop it
-    if not current_effect_task == None and not current_effect_task.done():
+    if (not current_effect_task == None) and not (current_effect_task.done()):
         # is running we have to stop it
-        current_effect_task.cancel()
+        # print(current_effect_task.get_name() + " is running we will cancel it") #todo
+        print("the task is running")
+        if current_effect_task.cancel():
+            #print(current_effect_task.get_name() + " was cancelled") #todo
+            print("the task was cancelled")
+        else:
+            #print(current_effect_task.get_name() + " was not cancelled") #todo
+            print("the task was cancelled")
     if new_effect_name == 'rainbow_cycle':
-        if 'effect_data' in request and 'wait' in request['effect_data']:
-            wait = request['effect_data']['wait']
-        else:
-            wait = 0.01
-        current_effect_task = asyncio.get_event_loop().create_task(looppa(effects.rainbow_cycle,np,wait))
+        wait = get_wait_from_request(request, False)
+        current_effect_task = asyncio.get_event_loop().create_task(
+            looppa(effects.rainbow_cycle, np, wait))
     if new_effect_name == 'twinkle':
-        if 'effect_data' in request:
-             if 'wait' in request['effect_data']:
-                wait = request['effect_data']['wait']
-             else:
-                wait = 0.01
-             if 'color' in request['effect_data']:
-                r = int(request['effect_data']['color'].split(",")[0])
-                g = int(request['effect_data']['color'].split(",")[1])
-                b = int(request['effect_data']['color'].split(",")[2])
-             else:
-                raise Exception("error no color in request")
-        else:
-                raise Exception("error no effect_data in request")            
-        current_effect_task = asyncio.get_event_loop().create_task(looppa(effects.twinkle,np,NUM_LED,(r,g,b),wait))    
+        wait = get_wait_from_request(request, False)
+        color = get_color_from_request(request, True)
+        current_effect_task = asyncio.get_event_loop().create_task(
+            looppa(effects.twinkle, np, NUM_LED, color, wait))
 
 
 async def looppa(l, *args):
     print(*args)
     while True:
-        await l(*args)     
+        await l(*args)
         print('loop')
-        #await asyncio.sleep(0.1)
+        # await asyncio.sleep(0.1)
+
+
+def get_effect_data_from_request(request, mandatory):
+    effect_data = None
+    if 'effect_data' in request:
+        effect_data = request['effect_data']
+    elif mandatory:
+        raise Exception("error no effect_data in request")
+    # returning None
+    print("effect_data returned " + str(effect_data))
+    return effect_data
+
+
+def get_color_from_request(request, mandatory):
+    effect_data = get_effect_data_from_request(request, mandatory)
+    if (not effect_data == None) and ('color' in effect_data):
+        r = int(effect_data['color'].split(",")[0])
+        g = int(effect_data['color'].split(",")[1])
+        b = int(effect_data['color'].split(",")[2])
+    elif mandatory:
+        raise Exception("error no color in request")
+    return (r, g, b)
+
+
+def get_wait_from_request(request, mandatory):
+    default_wait = 0.01
+    effect_data = get_effect_data_from_request(request, mandatory)
+    if (not effect_data == None) and ('wait' in effect_data):
+        wait = effect_data['wait']
+    elif mandatory:
+        raise Exception("error no wait in request")
+    else:
+        print("no wait in effect data, " + str(default_wait) +
+              " as default will be returned")
+        wait = default_wait
+    return wait
+
 
 # main
 do_connect()
