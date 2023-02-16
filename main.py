@@ -57,7 +57,10 @@ def start_server():
 
 # api methods
 
-
+@app.route('/')
+async def mem_info(request, response: tinyweb.response):
+    await response.send_file("static/index.html")
+    
 @app.route('/meminfo')
 async def mem_info(request, response: tinyweb.response):
     print("memInfo")
@@ -67,11 +70,6 @@ async def mem_info(request, response: tinyweb.response):
     current_effect_task = asyncio.get_event_loop().create_task(
         looppa(effects.rainbow_cycle, np, 1))
     await response.send('<html><body><h1>Hello, world! free: {} allocated: {} </h1></html>\n'.format(gc.mem_free(), gc.mem_alloc()))
-
-
-@app.route('/ping')
-async def mem_info(request, response: tinyweb.response):
-    print("ping")
 
 
 @app.resource('/effect', method='POST')
@@ -142,7 +140,7 @@ def get_wait_from_request(request, mandatory):
     default_wait = 0.01
     effect_data = get_effect_data_from_request(request, mandatory)
     if (not effect_data == None) and ('wait' in effect_data):
-        wait = effect_data['wait']
+        wait = float(effect_data['wait'])
     elif mandatory:
         raise Exception("error no wait in request")
     else:

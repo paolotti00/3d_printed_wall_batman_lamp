@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Example Form</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // submit form
+    function submitForm() {
+      // convert form data to JSON object
+      var formData = {
+        "name": $("#name").val(),
+        "effect_data": {
+          "wait": $("#wait").val(),
+          "color": parseInt($("#color").val().substr(1, 2), 16) + "," + parseInt($("#color").val().substr(3, 2), 16) + "," + parseInt($("#color").val().substr(5, 2), 16)
+        }
+      };
+
+      // send data to server via AJAX
+      $.ajax({
+        type: "POST",
+        url: "http://192.168.50.136/effect",
+        data: JSON.stringify(formData),
+        contentType: "application/json",
+        success: function (response) {
+          console.log("Success:", response);
+        },
+        error: function (xhr, status, error) {
+          console.log("Error:", error);
+        }
+      });
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .form-group select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23333" d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 24px;
+    }
+
+    .form-group input[type="submit"] {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .form-group input[type="submit"]:hover {
+      background-color: #3e8e41;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <form>
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <select name="name" id="name">
+          <option value="rainbow_cycle">rainbow_cycle</option>
+          <option value="twinkle">twinkle</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="wait">Wait:</label>
+        <input type="number" id="wait" name="wait"><br><br>
+      </div>
+      <div class="form-group">
+        <label for="color">Color:</label>
+        <input type="color" id="color" name="color"><br><br>
+      </div>
+      <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+  </div>
+</body>
+
+</html>
