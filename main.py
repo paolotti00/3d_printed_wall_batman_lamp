@@ -112,6 +112,10 @@ async def effect_handler(request):
         wait = get_wait_from_request(request, False)
         current_effect_task = asyncio.get_event_loop().create_task(
             looppa(effects.tow_color_fade, np,NUM_LED))
+    if new_effect_name == 'candle':
+        wait = get_wait_from_request(request, False)
+        current_effect_task = asyncio.get_event_loop().create_task(
+            looppa(effects.candle, np,NUM_LED))
     
 
 
