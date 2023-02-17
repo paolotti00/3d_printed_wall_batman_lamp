@@ -104,6 +104,15 @@ async def effect_handler(request):
         color = get_color_from_request(request, True)
         current_effect_task = asyncio.get_event_loop().create_task(
             looppa(effects.twinkle, np, NUM_LED, color, wait))
+    if new_effect_name == 'police':
+        wait = get_wait_from_request(request, False)
+        current_effect_task = asyncio.get_event_loop().create_task(
+            looppa(effects.police, np,NUM_LED))
+    if new_effect_name == 'tow_color_fade':
+        wait = get_wait_from_request(request, False)
+        current_effect_task = asyncio.get_event_loop().create_task(
+            looppa(effects.tow_color_fade, np,NUM_LED))
+    
 
 
 async def looppa(l, *args):
