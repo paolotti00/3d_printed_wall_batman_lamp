@@ -8,6 +8,8 @@ import machine
 import neopixel
 import time
 import gc
+import ujson
+from umqtt.simple import MQTTClient
 
 # import os
 # print(os.uname())
@@ -162,7 +164,29 @@ def get_wait_from_request(request, mandatory):
         wait = default_wait
     return wait
 
+# mqtt
+MQTT_SERVER = "192.168.50.32"
+MQTT_TOPIC = "light_effect"
+
+client = MQTTClient("client_id", MQTT_SERVER)
+
+def handle_mqtt_message(topic, message):
+    print(message)
+    # gestisce il messaggio MQTT per l'effetto di luce
+    #request_data = ujson.loads(message)
+    effect = request_data["effect"]
+    asyncio.run(effect_handler(message))
+    print('mqtt end')
 
 # main
+#wifi
 do_connect()
-start_server()
+#webserver
+#start_server()
+#mqtt
+client.connect()
+client.set_callback(handle_mqtt_message)
+client.subscribe(MQTT_TOPIC)
+client.publish(MQTT_TOPIC, "acceso", retain=False, qos=0)
+while True:
+    client.check_msg()
