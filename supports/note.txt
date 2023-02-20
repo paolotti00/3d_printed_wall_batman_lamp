@@ -1,0 +1,7 @@
+{
+	"name": "rainbow_cycle",
+	"effect_data": {
+		"wait": 0.01,
+		"color": "125,154,126"
+	}
+}
