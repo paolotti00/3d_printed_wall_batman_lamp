@@ -59,31 +59,24 @@ def start_server():
 
 # api methods
 
+
 @app.route('/')
 async def mem_info(request, response: tinyweb.response):
     await response.send_file("static/index.html")
-    
-@app.route('/meminfo')
-async def mem_info(request, response: tinyweb.response):
-    print("memInfo")
-    print(micropython.mem_info())
-    await response.start_html()
-    # Send actual HTML page
-    current_effect_task = asyncio.get_event_loop().create_task(
-        looppa(effects.rainbow_cycle, np, 1))
-    await response.send('<html><body><h1>Hello, world! free: {} allocated: {} </h1></html>\n'.format(gc.mem_free(), gc.mem_alloc()))
+
 
 
 @app.resource('/effect', method='POST')
 async def effect(request):
     print(request)
-    asyncio.run(effect_handler(request))
+    asyncio.get_event_loop().create_task(effect_handler(request))
     print('dopo asyncio.run(effect_handler(request))')
     return {'ok': 'ok'}, 200
 
 
 async def effect_handler(request):
     global current_effect_task
+    print("effect_handler received: "+str(request))
     new_effect_name = request['name']
     print(new_effect_name)
     # check if other effect task is running and stop it
@@ -92,10 +85,10 @@ async def effect_handler(request):
         # print(current_effect_task.get_name() + " is running we will cancel it") #todo
         print("the task is running")
         if current_effect_task.cancel():
-            #print(current_effect_task.get_name() + " was cancelled") #todo
+            # print(current_effect_task.get_name() + " was cancelled") #todo
             print("the task was cancelled")
         else:
-            #print(current_effect_task.get_name() + " was not cancelled") #todo
+            # print(current_effect_task.get_name() + " was not cancelled") #todo
             print("the task was cancelled")
     if new_effect_name == 'rainbow_cycle':
         wait = get_wait_from_request(request, False)
@@ -109,16 +102,15 @@ async def effect_handler(request):
     if new_effect_name == 'police':
         wait = get_wait_from_request(request, False)
         current_effect_task = asyncio.get_event_loop().create_task(
-            looppa(effects.police, np,NUM_LED))
+            looppa(effects.police, np, NUM_LED))
     if new_effect_name == 'tow_color_fade':
         wait = get_wait_from_request(request, False)
         current_effect_task = asyncio.get_event_loop().create_task(
-            looppa(effects.tow_color_fade, np,NUM_LED))
+            looppa(effects.tow_color_fade, np, NUM_LED))
     if new_effect_name == 'candle':
         wait = get_wait_from_request(request, False)
         current_effect_task = asyncio.get_event_loop().create_task(
-            looppa(effects.candle, np,NUM_LED))
-    
+            looppa(effects.candle, np, NUM_LED))
 
 
 async def looppa(l, *args):
@@ -164,29 +156,45 @@ def get_wait_from_request(request, mandatory):
         wait = default_wait
     return wait
 
+
 # mqtt
 MQTT_SERVER = "192.168.50.32"
 MQTT_TOPIC = "light_effect"
 
 client = MQTTClient("client_id", MQTT_SERVER)
 
+
 def handle_mqtt_message(topic, message):
-    print(message)
-    # gestisce il messaggio MQTT per l'effetto di luce
-    #request_data = ujson.loads(message)
-    effect = request_data["effect"]
-    asyncio.run(effect_handler(message))
+    try:
+        print(message)
+        # gestisce il messaggio MQTT per l'effetto di luce
+        request_data = ujson.loads(message)
+        print("request_data -->" + str(request_data))
+        asyncio.get_event_loop().create_task(effect_handler(request_data))
+    except Exception as e:
+        print(e)
+        pass
     print('mqtt end')
 
+
+async def check_new_message(client):
+    i = 0
+    while True:
+        i = i+1
+        print("checking "+str(i))
+        client.check_msg()
+        await asyncio.sleep(0.5)
+
+def mqtt_msg_received(topic, message):
+    print ("mqtt_msg_received received "  + str(message))
 # main
-#wifi
+# wifi
 do_connect()
-#webserver
-#start_server()
 #mqtt
 client.connect()
 client.set_callback(handle_mqtt_message)
 client.subscribe(MQTT_TOPIC)
 client.publish(MQTT_TOPIC, "acceso", retain=False, qos=0)
-while True:
-    client.check_msg()
+asyncio.get_event_loop().create_task(check_new_message(client))
+# webserver
+start_server()
