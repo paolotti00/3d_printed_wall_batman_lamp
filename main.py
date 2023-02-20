@@ -19,6 +19,9 @@ micropython.mem_info()
 # NETWORK
 NETWORK_SSID = 'i_have_a_link'
 NETWORK_PASS = 'G8U9URxf6trUPe4'
+# MQTT
+MQTT_SERVER = "192.168.50.32"
+MQTT_TOPIC = "light_effect"
 # LED
 n_leds_total = 32
 PIN = 5  # d1
@@ -61,9 +64,8 @@ def start_server():
 
 
 @app.route('/')
-async def mem_info(request, response: tinyweb.response):
+async def get_index(request, response: tinyweb.response):
     await response.send_file("static/index.html")
-
 
 
 @app.resource('/effect', method='POST')
@@ -72,6 +74,20 @@ async def effect(request):
     asyncio.get_event_loop().create_task(effect_handler(request))
     print('dopo asyncio.run(effect_handler(request))')
     return {'ok': 'ok'}, 200
+
+
+def handle_mqtt_message(topic, message):
+    try:
+        request_data = ujson.loads(message)
+        print("handling mq msg :" + str(request_data))
+        asyncio.get_event_loop().create_task(effect_handler(request_data))
+    except Exception as e:
+        print(e)
+        pass
+
+
+def mqtt_msg_received(topic, message):
+    print("mqtt_msg_received received " + str(message))
 
 
 async def effect_handler(request):
@@ -158,39 +174,20 @@ def get_wait_from_request(request, mandatory):
 
 
 # mqtt
-MQTT_SERVER = "192.168.50.32"
-MQTT_TOPIC = "light_effect"
-
 client = MQTTClient("client_id", MQTT_SERVER)
 
 
-def handle_mqtt_message(topic, message):
-    try:
-        print(message)
-        # gestisce il messaggio MQTT per l'effetto di luce
-        request_data = ujson.loads(message)
-        print("request_data -->" + str(request_data))
-        asyncio.get_event_loop().create_task(effect_handler(request_data))
-    except Exception as e:
-        print(e)
-        pass
-    print('mqtt end')
-
-
 async def check_new_message(client):
-    i = 0
+    print("mqtt started to check msg")
     while True:
-        i = i+1
-        print("checking "+str(i))
         client.check_msg()
         await asyncio.sleep(0.5)
 
-def mqtt_msg_received(topic, message):
-    print ("mqtt_msg_received received "  + str(message))
+
 # main
 # wifi
 do_connect()
-#mqtt
+# mqtt
 client.connect()
 client.set_callback(handle_mqtt_message)
 client.subscribe(MQTT_TOPIC)
